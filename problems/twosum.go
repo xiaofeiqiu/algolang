@@ -1,10 +1,9 @@
 package main
 
-func twoSum(nums []int, target int) []int {
+func twoSum1(nums []int, target int) []int {
 
-	res := make([]int, 2)
 	if nums == nil {
-		return res
+		return []int{}
 	}
 
 	lookingFor := make(map[int]int)
@@ -12,13 +11,11 @@ func twoSum(nums []int, target int) []int {
 	// else add looking for val to the map
 	for i, v := range nums {
 		if index, found := lookingFor[v]; found {
-			res[0] = i
-			res[1] = index
-			return res
+			return []int{i, index}
 		}
 
 		lookingFor[target-v] = i
 	}
 
-	return res
+	return []int{}
 }

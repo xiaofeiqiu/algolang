@@ -33,7 +33,7 @@ func ladderLengthii(beginWord string, endWord string, wordList []string) int {
 				return res
 			}
 
-			adjs := getAdjs(curr, wordSet)
+			adjs := getAdjs1(curr, wordSet)
 			for _, adj := range adjs {
 				if visited[adj] {
 					continue
@@ -47,7 +47,7 @@ func ladderLengthii(beginWord string, endWord string, wordList []string) int {
 	return 0
 }
 
-func getAdjs(curr string, wordSet map[string]bool) []string {
+func getAdjs1(curr string, wordSet map[string]bool) []string {
 
 	res := make([]string, 0)
 	chars := []rune(curr)

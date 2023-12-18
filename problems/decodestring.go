@@ -1,3 +1,7 @@
+package main
+
+import "strings"
+
 type E struct {
 	Count int
 	Str   string
