@@ -1,7 +1,5 @@
 package main
 
-import "fmt"
-
 func ladderLength(beginWord string, endWord string, wordList []string) int {
 
 	if beginWord == "" || endWord == "" || wordList == nil {
@@ -70,6 +68,5 @@ func getAdjs(curr string, wordSet map[string]bool) []string {
 			chars[i] = char
 		}
 	}
-	fmt.Printf("%v", res)
 	return res
 }
