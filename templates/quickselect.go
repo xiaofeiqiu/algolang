@@ -1,32 +1,30 @@
 package main
 
-func quickSort(nums []int, start, end int) {
-	if start >= end {
-		return
+// quickSelect finds the k-th smallest element in an array. k is 0 based index
+func quickSelect(nums []int, start, end, k int) int {
+	// if only one element left, return that element
+	if start == end {
+		return nums[start]
 	}
 
-	// partition
-	left, right := start, end
-	pivot := nums[start+(end-start)/2]
+	// left points to the last element of the left subarray
+	// right points to the first element of the right subarray
+	left, right := partition(nums, start, end)
 
-	for left <= right {
-		// keep numbers smaller than pivot in the left side of pivot
-		for left <= right && nums[left] < pivot {
-			left++
-		}
-
-		// keep numbers right than pivot in the right side of pivot
-		for left <= right && nums[right] > pivot {
-			right--
-		}
-
-		if left <= right {
-			nums[left], nums[right] = nums[right], nums[left]
-			left++
-			right--
-		}
+	// if k <= left, meaning kth element in on the left subarray
+	// continue to process left subarray
+	if k <= left {
+		return quickSelect(nums, start, left, k)
 	}
 
-	quickSort(nums, start, right)
-	quickSort(nums, left, end)
+	// if k >= right, meaning kth element is on the right subarray
+	// continue to process right subarray
+	if k >= right {
+		return quickSelect(nums, right, end, k)
+	}
+
+	// if k is between left, and right, then k is the pivot index
+	// so kth element is at its correct position in sorted array
+	// return k
+	return nums[k]
 }
