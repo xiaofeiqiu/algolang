@@ -3,14 +3,27 @@ package main
 import "fmt"
 
 func main() {
-	t1 := []int{1}
-	fmt.Println("Before modify:", t1) // Print before modification
+	nums := []int{1, 2, 3, 4, 5}
+	l := 2
+	h := l
+	k := 3
+	sum := 0
 
-	modify(t1)
+	count := 0
+	for i := range nums {
+		if h > 0 {
+			sum += nums[i]
+			h--
+			continue
+		}
 
-	fmt.Println("After modify:", t1) // Print after modification
-}
+		if sum == k {
+			count++
+		}
 
-func modify(bbb []int) {
-	bbb[0] = 100
+		sum += (nums[i] - nums[i-l])
+		fmt.Printf("i=%d, i-l=%d\n", nums[i], nums[i-l])
+	}
+
+	fmt.Println(count)
 }
