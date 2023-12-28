@@ -5,9 +5,10 @@ type ListNode struct {
 	Next *ListNode
 }
 type TreeNode struct {
-	Val   int
-	Left  *TreeNode
-	Right *TreeNode
+	Val    int
+	Left   *TreeNode
+	Right  *TreeNode
+	Parent *TreeNode
 }
 
 type Node struct {
