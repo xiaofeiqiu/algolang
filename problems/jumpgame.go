@@ -5,19 +5,14 @@ func canJump(nums []int) bool {
 		return false
 	}
 
-	maxIndex := 0
+	furthest := 0
+
 	for i := range nums {
-		// maxIndex smaller than current index, return false
-		if maxIndex < i {
+		if i > furthest {
 			return false
 		}
-
-		// update maxIndex
-		if nums[i]+i > maxIndex {
-			maxIndex = i + nums[i]
-		}
-
-		if maxIndex >= len(nums)-1 {
+		furthest = max(furthest, nums[i]+i)
+		if furthest >= len(nums)-1 {
 			return true
 		}
 	}
