@@ -9,13 +9,11 @@ func productExceptSelf(nums []int) []int {
 	left := make([]int, n)
 	right := make([]int, n)
 
-	// product to the left not including itself
 	left[0] = 1
 	for i := 1; i < n; i++ {
 		left[i] = left[i-1] * nums[i-1]
 	}
 
-	// product to the right not including itself
 	right[n-1] = 1
 	for i := n - 2; i >= 0; i-- {
 		right[i] = right[i+1] * nums[i+1]
