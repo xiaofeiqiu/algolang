@@ -16,13 +16,13 @@ func pacificAtlantic(heights [][]int) [][]int {
 	}
 
 	for i := 0; i < m; i++ {
-		dfs(heights, i, 0, canReachPacific)
-		dfs(heights, i, n-1, canReachAtlantic)
+		dfs11(heights, i, 0, canReachPacific)
+		dfs11(heights, i, n-1, canReachAtlantic)
 	}
 
 	for i := 0; i < n; i++ {
-		dfs(heights, 0, i, canReachPacific)
-		dfs(heights, m-1, i, canReachAtlantic)
+		dfs11(heights, 0, i, canReachPacific)
+		dfs11(heights, m-1, i, canReachAtlantic)
 	}
 
 	res := make([][]int, 0)
@@ -39,7 +39,7 @@ func pacificAtlantic(heights [][]int) [][]int {
 
 var dirs = [][]int{{0, 1}, {1, 0}, {0, -1}, {-1, 0}}
 
-func dfs(heights [][]int, x, y int, res [][]bool) {
+func dfs11(heights [][]int, x, y int, res [][]bool) {
 
 	m, n := len(heights), len(heights[0])
 	res[x][y] = true
@@ -58,7 +58,7 @@ func dfs(heights [][]int, x, y int, res [][]bool) {
 			continue
 		}
 
-		dfs(heights, newX, newY, res)
+		dfs11(heights, newX, newY, res)
 	}
 
 }
