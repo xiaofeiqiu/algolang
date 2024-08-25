@@ -17,79 +17,84 @@ import "fmt"
 //  Iterator<Integer> iterator(); // the first call to this function should trigger a snapshot of the set
 //}
 
-type SnapshotElement struct {
-	val       int
-	createdAt int
-	removedAt int
+type Element struct {
+	val     int
+	isValid map[int]bool
 }
 
 type SnapshotSet struct {
-	data map[int]*SnapshotElement
-	arr  []*SnapshotElement
-	t    int
+	data      map[int]*Element
+	arr       []*Element
+	versionID int
 }
 
 func NewSnapshotSet() SnapshotSet {
-	data := make(map[int]*SnapshotElement)
+	data := make(map[int]*Element)
 	return SnapshotSet{
-		data: data,
-		t:    1,
-		arr:  make([]*SnapshotElement, 0),
+		data:      data,
+		versionID: 0,
+		arr:       make([]*Element, 0),
 	}
 }
 
 func (s *SnapshotSet) Add(v int) {
 	if _, exist := s.data[v]; !exist {
-		s.data[v] = &SnapshotElement{val: v, createdAt: s.t}
+		s.data[v] = &Element{
+			val: v,
+			isValid: map[int]bool{
+				s.versionID: true,
+			},
+		}
 		s.arr = append(s.arr, s.data[v])
 	} else {
-		if s.data[v].removedAt > 0 {
-			s.data[v].createdAt = s.t
-		}
+		s.data[v].isValid[s.versionID] = true
 	}
-	s.t++
 }
 
 func (s *SnapshotSet) Remove(v int) {
 	if e, exists := s.data[v]; exists {
-		e.removedAt = s.t
+		e.isValid[s.versionID] = false
 	}
-	s.t++
 }
 
 func (s *SnapshotSet) Contains(v int) bool {
-	if metadata, exists := s.data[v]; exists {
-		return metadata.createdAt > metadata.removedAt
+	if element, exists := s.data[v]; exists {
+		return element.isValid[s.versionID]
 	}
 	return false
 }
 
 func (s *SnapshotSet) Iterator() Iterator {
-	s.t++
-	return NewIterator(s.arr, s.t-1)
+	for _, v := range s.data {
+		if v.isValid[s.versionID] {
+			v.isValid[s.versionID+1] = true
+		}
+	}
+	s.versionID++
+	return NewIterator(s.arr, s.versionID-1)
 }
 
 type Iterator struct {
-	data         []*SnapshotElement
-	index        int
-	totalLen     int
-	snapshotTime int
+	data      []*Element
+	index     int
+	totalLen  int
+	versionID int
 }
 
-func NewIterator(data []*SnapshotElement, t int) Iterator {
+func NewIterator(data []*Element, versionID int) Iterator {
 
 	totalLen := 0
 	for _, v := range data {
-		if v.createdAt <= t && (t < v.removedAt || v.removedAt == 0) {
+		if v.isValid[versionID] {
 			totalLen++
 		}
 	}
 
 	return Iterator{
-		data:         data,
-		index:        0,
-		snapshotTime: t,
-		totalLen:     totalLen,
+		data:      data,
+		index:     0,
+		versionID: versionID,
+		totalLen:  totalLen,
 	}
 }
 
@@ -103,7 +108,7 @@ func (it *Iterator) Next() int {
 	}
 
 	for _, v := range it.data[it.index:] {
-		if v.createdAt <= it.snapshotTime && (it.snapshotTime < v.removedAt || v.removedAt == 0) {
+		if v.isValid[it.versionID] {
 			it.index++
 			return v.val
 		}
@@ -124,6 +129,7 @@ func main() {
 	// Test 2: Remove elements and create a new iterator
 	set.Remove(1)
 	set.Remove(3)
+	set.Add(1)
 	itr2 := set.Iterator()
 
 	// Test 3: Add and remove more elements
@@ -131,26 +137,25 @@ func main() {
 	set.Remove(2)
 	itr3 := set.Iterator()
 
-	// Test Iteration of Iterator 1 (Should return 1, 2, 3)
-	fmt.Println("Iterator 1:")
 	for itr1.HasNext() {
-		fmt.Println(itr1.Next())
+		fmt.Printf("it1: %d\n", itr1.Next())
 	}
 
-	// Test Iteration of Iterator 2 (Should return 2)
-	fmt.Println("Iterator 2:")
 	for itr2.HasNext() {
-		fmt.Println(itr2.Next())
+		fmt.Printf("it2: %d\n", itr2.Next())
 	}
 
-	// Test Iteration of Iterator 3 (Should return 4)
-	fmt.Println("Iterator 3:")
 	for itr3.HasNext() {
-		fmt.Println(itr3.Next())
+		fmt.Printf("it3: %d\n", itr3.Next())
 	}
 
-	// Test 4: Contains method
-	fmt.Println("Contains(1):", set.Contains(1)) // Should return false (removed)
+	fmt.Println(set.versionID)
+	for _, v := range set.data {
+		fmt.Printf("%v\n", v)
+	}
+
+	//Test 4: Contains method
+	fmt.Println("Contains(1):", set.Contains(1)) // Should return true (removed)
 	fmt.Println("Contains(2):", set.Contains(2)) // Should return false (removed)
 	fmt.Println("Contains(3):", set.Contains(3)) // Should return false (removed)
 	fmt.Println("Contains(4):", set.Contains(4)) // Should return true (exists)
