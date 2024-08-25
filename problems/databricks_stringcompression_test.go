@@ -80,7 +80,7 @@ func TestDelete(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got := delete1(tt.cover, tt.index)
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("delete() = %v, want %v", got, tt.want)
+				t.Errorf("given %v, delete %v, want %v, got %v", tt.cover, tt.index, tt.want, got)
 			}
 		})
 	}

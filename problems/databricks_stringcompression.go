@@ -63,6 +63,8 @@ func delete1(cover []Block, index int) []Block {
 
 	for _, block := range cover {
 		blockLen := block.End - block.Start
+
+		// calculate src block end
 		srcEnd := srcStart + blockLen
 
 		// Handle cases where index is outside the current block
@@ -73,14 +75,43 @@ func delete1(cover []Block, index int) []Block {
 		}
 
 		// Handle all cases where index is within the current block
-		deletionOffset := index - srcStart
-		if deletionOffset > 0 {
-			res = append(res, Block{Start: block.Start, End: block.Start + deletionOffset})
-		}
-		if deletionOffset < blockLen-1 {
-			res = append(res, Block{Start: block.Start + deletionOffset + 1, End: block.End})
+
+		// delete first in src block
+		if index == srcStart {
+			if block.Start+1 != block.End {
+				res = append(res, Block{Start: block.Start + 1, End: block.End})
+			}
+			srcStart += blockLen
+			continue
 		}
 
+		// delete last in the src block
+		if index == srcEnd-1 {
+			if block.Start+1 != block.End {
+				res = append(res, Block{Start: block.Start, End: block.End - 1})
+			}
+			srcStart += blockLen
+			continue
+		}
+
+		// Handle all cases where index is within the current block
+		deletionOffset := index - srcStart
+		res = append(res, Block{Start: block.Start, End: block.Start + deletionOffset})
+		res = append(res, Block{Start: block.Start + deletionOffset + 1, End: block.End})
+
+		/*
+				or we can write simpler way
+			        // Handle all cases where index is within the current block
+			        deletionOffset := index - srcStart
+			        if deletionOffset > 0 {
+			            res = append(res, Block{Start: block.Start, End: block.Start + deletionOffset})
+			        }
+			        if deletionOffset < blockLen-1 {
+			            res = append(res, Block{Start: block.Start + deletionOffset + 1, End: block.End})
+			        }
+
+			        srcStart += blockLen
+		*/
 		srcStart += blockLen
 	}
 
