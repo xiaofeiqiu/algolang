@@ -1,6 +1,4 @@
-
 package main
-
 
 /*
 [] [] [] [] [] []
@@ -13,13 +11,13 @@ package main
 
 */
 
-type Pair struct{
-	ID int
+type Pair struct {
+	ID    int
 	Value int
 }
 
-type SnapshotArray struct{
-	data [][]Pair
+type SnapshotArray struct {
+	data       [][]Pair
 	snapshotID int
 }
 
@@ -30,7 +28,7 @@ func NewSnapshotArray(length int) SnapshotArray {
 	}
 
 	return SnapshotArray{
-		data: data,
+		data:       data,
 		snapshotID: 0,
 	}
 }
@@ -40,7 +38,7 @@ func (r *SnapshotArray) Set(index int, value int) {
 	if r.data[index][lastIndex].ID == r.snapshotID {
 		r.data[index][lastIndex].Value = value
 	} else {
-		r.data[index] = append(r.data[index], Pair{ID:r.snapshotID, Value: value})
+		r.data[index] = append(r.data[index], Pair{ID: r.snapshotID, Value: value})
 	}
 }
 
@@ -54,7 +52,7 @@ func (r *SnapshotArray) Get(index int, snapId int) int {
 
 	low, high := 0, len(data)
 	for low <= high {
-		mid := low + (high - low) / 2
+		mid := low + (high-low)/2
 		if data[mid].ID == snapId {
 			return data[mid].Value
 		}
@@ -67,7 +65,7 @@ func (r *SnapshotArray) Get(index int, snapId int) int {
 	}
 
 	if high >= 0 {
-		return  data[right].Value
+		return data[high].Value
 	}
 
 	return 0

@@ -86,7 +86,3 @@ func delete1(cover []Block, index int) []Block {
 
 	return res
 }
-
-func main() {
-	
-}

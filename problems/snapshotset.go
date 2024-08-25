@@ -1,7 +1,5 @@
 package main
 
-import "fmt"
-
 //Design a snapshot set functionality.
 //
 //Once the snapshot is taken, the iterator of the class should only return values that were present in the function.
@@ -114,49 +112,4 @@ func (it *Iterator) Next() int {
 		}
 	}
 	return -1
-}
-
-func main() {
-	// Test cases
-	set := NewSnapshotSet()
-
-	// Test 1: Add elements and check snapshot
-	set.Add(1)
-	set.Add(2)
-	set.Add(3)
-	itr1 := set.Iterator()
-
-	// Test 2: Remove elements and create a new iterator
-	set.Remove(1)
-	set.Remove(3)
-	set.Add(1)
-	itr2 := set.Iterator()
-
-	// Test 3: Add and remove more elements
-	set.Add(4)
-	set.Remove(2)
-	itr3 := set.Iterator()
-
-	for itr1.HasNext() {
-		fmt.Printf("it1: %d\n", itr1.Next())
-	}
-
-	for itr2.HasNext() {
-		fmt.Printf("it2: %d\n", itr2.Next())
-	}
-
-	for itr3.HasNext() {
-		fmt.Printf("it3: %d\n", itr3.Next())
-	}
-
-	fmt.Println(set.versionID)
-	for _, v := range set.data {
-		fmt.Printf("%v\n", v)
-	}
-
-	//Test 4: Contains method
-	fmt.Println("Contains(1):", set.Contains(1)) // Should return true (removed)
-	fmt.Println("Contains(2):", set.Contains(2)) // Should return false (removed)
-	fmt.Println("Contains(3):", set.Contains(3)) // Should return false (removed)
-	fmt.Println("Contains(4):", set.Contains(4)) // Should return true (exists)
 }
