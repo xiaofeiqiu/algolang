@@ -3,13 +3,13 @@ package main
 import "container/list"
 
 type Bucket struct {
-	count  int
-	keySet map[string]bool
+	count int
+	keys  map[string]bool
 }
 
 type AllOne struct {
-	list      *list.List               // Doubly linked list of Buckets
-	bucketMap map[string]*list.Element // Map from key to its Bucket in the list
+	list      *list.List
+	bucketMap map[string]*list.Element
 }
 
 func Constructorx() AllOne {
@@ -19,126 +19,133 @@ func Constructorx() AllOne {
 	}
 }
 
-func (ao *AllOne) Inc(key string) {
-	if elem, exists := ao.bucketMap[key]; exists {
-		// Key exists, increment its count
-		ao.moveKeyUp(key, elem)
-	} else {
-		// Key does not exist, insert with count 1
-		if ao.list.Len() == 0 || ao.list.Front().Value.(*Bucket).count > 1 {
-			// Insert new bucket at front with count 1
-			newBucket := &Bucket{
-				count:  1,
-				keySet: make(map[string]bool),
-			}
-			ao.list.PushFront(newBucket)
-		}
-		frontElem := ao.list.Front()
-		// Add key to count 1 bucket
-		ao.addKey(key, frontElem)
+// add key to element
+func (r *AllOne) addKey(key string, elem *list.Element) {
+	bucket := elem.Value.(*Bucket)
+	bucket.keys[key] = true
+	r.bucketMap[key] = elem
+}
+
+// remove key from element
+func (r *AllOne) removeKey(key string, elem *list.Element) {
+	bucket := elem.Value.(*Bucket)
+	delete(bucket.keys, key)
+	if len(bucket.keys) == 0 {
+		r.list.Remove(elem)
 	}
 }
 
-func (ao *AllOne) Dec(key string) {
-	elem, exists := ao.bucketMap[key]
-	if !exists {
-		return // Key does not exist, nothing to do
+func (r *AllOne) Inc(key string) {
+	// if bucket found, move key up
+	// else check bucket with count == 1 exist or not, if not create bucket, else add key to front bucket
+	if elem, found := r.bucketMap[key]; found {
+		r.moveUp(key, elem)
+	} else {
+		if r.list.Len() == 0 || r.list.Front().Value.(*Bucket).count > 1 {
+			bucket := &Bucket{
+				count: 1,
+				keys:  make(map[string]bool),
+			}
+			r.list.PushFront(bucket)
+		}
+		elem := r.list.Front()
+		r.addKey(key, elem)
 	}
+}
+
+func (r *AllOne) moveUp(key string, elem *list.Element) {
 	currBucket := elem.Value.(*Bucket)
+	newCount := currBucket.count + 1
+
+	nextElem := elem.Next()
+	// if next bucket exist, add key to next bucket, remove key from current buket
+	// else create new bucket, add key to new buket, remove key from current bucket
+	if nextElem != nil && nextElem.Value.(*Bucket).count == newCount {
+		r.addKey(key, nextElem)
+		r.removeKey(key, elem)
+	} else {
+		newBucket := &Bucket{
+			count: newCount,
+			keys:  make(map[string]bool),
+		}
+		newElem := r.list.InsertAfter(newBucket, elem)
+		r.addKey(key, newElem)
+		r.removeKey(key, elem)
+	}
+}
+
+// if key does not exist, return
+// if key count is 1, remove key from bucket, and remove key from map
+// else move key down
+func (r *AllOne) Dec(key string) {
+	if _, found := r.bucketMap[key]; !found {
+		return
+	}
+
+	currElem := r.bucketMap[key]
+	currBucket := currElem.Value.(*Bucket)
 
 	if currBucket.count == 1 {
-		// Remove key entirely
-		ao.removeKey(key, elem)
-		delete(ao.bucketMap, key)
-
+		r.removeKey(key, currElem)
+		delete(r.bucketMap, key)
 	} else {
-		// Key exists and count > 1, decrement its count
-		ao.moveKeyDown(key, elem)
+		r.moveDown(key, currElem)
 	}
 }
 
-func (ao *AllOne) moveKeyUp(key string, currElem *list.Element) {
+func (r *AllOne) moveDown(key string, currElem *list.Element) {
 	currBucket := currElem.Value.(*Bucket)
-	nextCount := currBucket.count + 1
+	newCount := currBucket.count - 1
 
-	var nextElem *list.Element
-	if currElem.Next() != nil && currElem.Next().Value.(*Bucket).count == nextCount {
-		// Next bucket has the required count
-		nextElem = currElem.Next()
+	prevElem := currElem.Prev()
+	// if prev bucket exist, move key
+	// else create bucket, move key
+	if prevElem != nil && prevElem.Value.(*Bucket).count == newCount {
+		r.addKey(key, prevElem)
+		r.removeKey(key, currElem)
 	} else {
-		// Insert new bucket after current
-		newBucket := &Bucket{
-			count:  nextCount,
-			keySet: make(map[string]bool),
+		bucket := &Bucket{
+			count: newCount,
+			keys:  make(map[string]bool),
 		}
-		nextElem = ao.list.InsertAfter(newBucket, currElem)
-	}
 
-	// Add key to next bucket
-	ao.addKey(key, nextElem)
-
-	// Remove key from current bucket
-	ao.removeKey(key, currElem)
-}
-
-func (ao *AllOne) moveKeyDown(key string, currElem *list.Element) {
-	currBucket := currElem.Value.(*Bucket)
-	prevCount := currBucket.count - 1
-
-	var prevElem *list.Element
-	if currElem.Prev() != nil && currElem.Prev().Value.(*Bucket).count == prevCount {
-		// Previous bucket has the required count
-		prevElem = currElem.Prev()
-	} else {
-		// Insert new bucket before current
-		newBucket := &Bucket{
-			count:  prevCount,
-			keySet: make(map[string]bool),
-		}
-		prevElem = ao.list.InsertBefore(newBucket, currElem)
-	}
-
-	// Add key to previous bucket
-	ao.addKey(key, prevElem)
-
-	// Remove key from current bucket
-	ao.removeKey(key, currElem)
-}
-
-func (ao *AllOne) addKey(key string, elem *list.Element) {
-	bucket := elem.Value.(*Bucket)
-	bucket.keySet[key] = true
-	ao.bucketMap[key] = elem
-}
-
-func (ao *AllOne) removeKey(key string, elem *list.Element) {
-	bucket := elem.Value.(*Bucket)
-	delete(bucket.keySet, key)
-	if len(bucket.keySet) == 0 {
-		ao.list.Remove(elem)
+		newElem := r.list.InsertBefore(bucket, currElem)
+		r.addKey(key, newElem)
+		r.removeKey(key, currElem)
 	}
 }
 
-func (ao *AllOne) GetMaxKey() string {
-	if ao.list.Len() == 0 {
+func (r *AllOne) GetMaxKey() string {
+	if r.list.Len() == 0 {
 		return ""
 	}
-	// Get any key from the tail bucket (max count)
-	maxBucket := ao.list.Back().Value.(*Bucket)
-	for key := range maxBucket.keySet {
+
+	keys := r.list.Back().Value.(*Bucket).keys
+	for key := range keys {
 		return key
 	}
+
 	return ""
 }
 
-func (ao *AllOne) GetMinKey() string {
-	if ao.list.Len() == 0 {
+func (r *AllOne) GetMinKey() string {
+	if r.list.Len() == 0 {
 		return ""
 	}
-	// Get any key from the head bucket (min count)
-	minBucket := ao.list.Front().Value.(*Bucket)
-	for key := range minBucket.keySet {
+
+	keys := r.list.Front().Value.(*Bucket).keys
+	for key := range keys {
 		return key
 	}
+
 	return ""
 }
+
+/**
+ * Your AllOne object will be instantiated and called as such:
+ * obj := Constructor();
+ * obj.Inc(key);
+ * obj.Dec(key);
+ * param_3 := obj.GetMaxKey();
+ * param_4 := obj.GetMinKey();
+ */
