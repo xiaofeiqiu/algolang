@@ -5,48 +5,46 @@ package linkedin
 十分钟BFS秒掉以后，给了个follow-up，问如果一个member的connection特别多怎么办，写了个两头BFS，面试官满意。
 */
 
-func bidirectionalBFS(graph map[int][]int, start, goal int) int {
-	if start == goal {
+func bidirectionalBFS(graph map[int][]int, start, target int) int {
+	if start == target {
 		return 0
 	}
 
-	// 初始化队列和访问记录
+	startSeen := make(map[int]int)
+	targetSeen := make(map[int]int)
+
 	startQueue := []int{start}
-	goalQueue := []int{goal}
+	targetQueue := []int{target}
 
-	startVisited := map[int]int{start: 0}
-	goalVisited := map[int]int{goal: 0}
-
-	// 双向BFS
-	for len(startQueue) > 0 && len(goalQueue) > 0 {
-		if res := bfsStep(graph, &startQueue, startVisited, goalVisited); res != -1 {
+	for len(startQueue) > 0 && len(targetQueue) > 0 {
+		res := bfs(graph, &startQueue, startSeen, targetSeen)
+		if res != -1 {
 			return res
 		}
 
-		if res := bfsStep(graph, &goalQueue, goalVisited, startVisited); res != -1 {
+		res = bfs(graph, &targetQueue, targetSeen, startSeen)
+		if res != -1 {
 			return res
 		}
 	}
-
-	return -1 // 没有路径
+	return -1
 }
 
-func bfsStep(graph map[int][]int, queue *[]int, visited, otherVisited map[int]int) int {
-	current := (*queue)[0]
-	*queue = (*queue)[1:]
+func bfs(graph map[int][]int, startQueue *[]int, startSeen map[int]int, targetSeen map[int]int) int {
+	curr := (*startQueue)[0]
+	*startQueue = (*startQueue)[1:]
 
-	for _, neighbor := range graph[current] {
-		if _, found := visited[neighbor]; found {
+	for _, neighbor := range graph[curr] {
+		if _, found := startSeen[neighbor]; found {
 			continue
 		}
 
-		visited[neighbor] = visited[current] + 1
-
-		if dist, found := otherVisited[neighbor]; found {
-			return visited[neighbor] + dist
+		startSeen[neighbor] = startSeen[curr] + 1
+		if dist, found := targetSeen[neighbor]; found {
+			return dist + startSeen[neighbor]
 		}
 
-		*queue = append(*queue, neighbor)
+		*startQueue = append(*startQueue, neighbor)
 	}
 
 	return -1

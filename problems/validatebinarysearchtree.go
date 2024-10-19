@@ -22,7 +22,7 @@ func isValid1(node *TreeNode, low int, high int) bool {
 	// check left subtree, update high to current node's val
 	left := isValid1(node.Left, low, node.Val)
 
-	// check right subtree, update low to current nodes' val
+	// check right subtree, update low to current list' val
 	right := isValid1(node.Right, node.Val, high)
 
 	// check if current root node is in the valid range

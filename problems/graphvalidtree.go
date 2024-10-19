@@ -30,6 +30,6 @@ func validTree(n int, edges [][]int) bool {
 		}
 	}
 
-	// Check if all nodes are visited
+	// Check if all list are visited
 	return len(visited) == n
 }
