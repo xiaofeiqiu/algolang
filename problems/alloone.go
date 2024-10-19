@@ -12,7 +12,7 @@ type AllOne struct {
 	bucketMap map[string]*list.Element
 }
 
-func Constructorx() AllOne {
+func Constructor() AllOne {
 	return AllOne{
 		list:      list.New(),
 		bucketMap: make(map[string]*list.Element),
@@ -113,6 +113,7 @@ func (r *AllOne) moveDown(key string, currElem *list.Element) {
 		r.addKey(key, newElem)
 		r.removeKey(key, currElem)
 	}
+
 }
 
 func (r *AllOne) GetMaxKey() string {
@@ -140,12 +141,3 @@ func (r *AllOne) GetMinKey() string {
 
 	return ""
 }
-
-/**
- * Your AllOne object will be instantiated and called as such:
- * obj := Constructor();
- * obj.Inc(key);
- * obj.Dec(key);
- * param_3 := obj.GetMaxKey();
- * param_4 := obj.GetMinKey();
- */
