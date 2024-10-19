@@ -12,7 +12,7 @@ type AllOne struct {
 	bucketMap map[string]*list.Element
 }
 
-func Constructor() AllOne {
+func Constructorx() AllOne {
 	return AllOne{
 		list:      list.New(),
 		bucketMap: make(map[string]*list.Element),
